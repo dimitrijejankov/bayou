@@ -60,7 +60,8 @@ public final class Utils {
     public static String getJavadoc(MethodDeclaration method, String javadocType) {
         try {
             Javadoc doc = method.getJavadoc();
-            List<IDocElement> fragments = ((TagElement) doc.tags().get(0)).fragments();
+            TagElement tmp = ((TagElement) doc.tags().get(0));
+            List<ASTNode> fragments = (List<ASTNode>)tmp.getStructuralProperty(TagElement.FRAGMENTS_PROPERTY);
             String str = String.join(" ", fragments.stream().map(f -> getJavadocText(f)).collect(Collectors.toList()));
             if (javadocType.equals("summary")) {
                 Pattern p = Pattern.compile("(.*?)\\.\\W.*");
@@ -75,7 +76,7 @@ public final class Utils {
         }
     }
 
-    private static String getJavadocText(IDocElement fragment) {
+    private static String getJavadocText(ASTNode fragment) {
         if (fragment instanceof TextElement)
             return ((TextElement) fragment).getText();
         if (fragment instanceof Name)
@@ -85,7 +86,8 @@ public final class Utils {
         if (fragment instanceof MethodRef)
             return ((MethodRef) fragment).getName().getIdentifier();
         if (fragment instanceof TagElement) {
-            List<IDocElement> fragments = ((TagElement) fragment).fragments();
+            TagElement tmp = ((TagElement) fragment);
+            List<ASTNode> fragments = (List<ASTNode>)tmp.getStructuralProperty(TagElement.FRAGMENTS_PROPERTY);
             return String.join(" ", fragments.stream().map(f -> getJavadocText(f)).collect(Collectors.toList()));
         }
         throw new RuntimeException();
